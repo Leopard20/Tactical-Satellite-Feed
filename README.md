@@ -8,3 +8,4 @@ https://youtu.be/ivHZsNZjig0
 
 
 # BI Forum:
+https://forums.bohemia.net/forums/topic/218800-tactical-satellite-feed/
