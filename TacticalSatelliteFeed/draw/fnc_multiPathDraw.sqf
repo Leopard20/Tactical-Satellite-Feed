@@ -4,11 +4,11 @@ private [
 	"_count", "_isWater", "_add", "_vecDiff", "_normal"
 	];
 _units = TSF_allSelectedUnits;
-TSF_multiDrawMode = true;
-player setVariable ["TSF_multiDrawCanceled", false];
 _units = _units - [player];
 TSF_allSelectedUnits = [];
 if (count _units == 0) exitWith {};
+TSF_multiDrawMode = true;
+player setVariable ["TSF_multiDrawCanceled", false];
 _unitPos = [0,0,0];
 _pos = getMousePosition;
 _prevPos = screenToWorld _pos;
