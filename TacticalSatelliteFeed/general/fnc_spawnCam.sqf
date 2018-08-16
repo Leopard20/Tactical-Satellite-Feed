@@ -94,7 +94,7 @@ TSF_ActionSelectMode = false;
 TSF_camera hideObject true;
 
 //showHUD [hud, info, radar, compass, direction, menu, group, cursors, panels]
-showHUD [true, true, false, false, false, false, false, false, false];
+showHUD [true, true, false, true, true, true, true, true, false];
 _time = date select 3;
 
 if (_time >= 20 OR _time <= 4) then {

@@ -1,12 +1,14 @@
 private [
 	"_array","_units", "_num", "_unitPos", "_height", "_posFinal", "_dist", "_uavPos", "_pos", "_angle", "_offset", "_dir", 
-	"_magnitude", "_cos", "_proLine", "_mouseProjection", "_uavProjection", "_uavWatchDir", "_prevPos", "_finalVec", "_rotate"
+	"_magnitude", "_cos", "_proLine", "_mouseProjection", "_uavProjection", "_uavWatchDir", "_prevPos", "_finalVec", "_rotate",
+	"_count", "_isWater", "_add", "_vecDiff", "_normal"
 	];
 _units = TSF_allSelectedUnits;
 TSF_multiDrawMode = true;
 player setVariable ["TSF_multiDrawCanceled", false];
 _units = _units - [player];
 TSF_allSelectedUnits = [];
+if (count _units == 0) exitWith {};
 _unitPos = [0,0,0];
 _pos = getMousePosition;
 _prevPos = screenToWorld _pos;
