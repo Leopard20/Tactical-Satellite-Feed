@@ -69,4 +69,12 @@ TSF_fnc_checkEHM = compile preprocessFileLineNumbers "TacticalSatelliteFeed\draw
 
 [] execVM "TacticalSatelliteFeed\reloadCam.sqf";
 
+if !(isNil "TSF_hiddenEnemyUnits") then {
+	if (count TSF_hiddenEnemyUnits != 0) then {
+		{
+			_x hideObject false;
+		} forEach TSF_hiddenEnemyUnits
+	};	
+};
+
 if (TSF_Init_Message) then {player sideChat "Tactical Satellite Feed Initialized."};
