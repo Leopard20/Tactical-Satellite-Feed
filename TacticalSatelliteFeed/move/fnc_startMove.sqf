@@ -228,7 +228,7 @@ while {count (_unit getVariable ["TSF_allPathMarkers", []]) != 0 && !(_unit getV
 				};
 				if ((_unit getVariable ["TSF_unitAction", -1]) == 7) then {
 				
-					//Grenade throw
+					//throw grenade
 					_target = _unit getVariable "TSF_grenadeTarget";
 					_hasNade = false;
 					_grenade = objNull;

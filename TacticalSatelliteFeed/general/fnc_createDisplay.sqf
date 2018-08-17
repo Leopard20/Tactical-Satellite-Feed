@@ -189,8 +189,9 @@ if (_display getVariable ["TSF_KeyDown_EH", -1] == -1) then
 			["_userAlt", false, [false]]
 		];
 		_userArrayLock = [_userKey, _userShift, _userCtrl, _userAlt];
-		_userKeybindSet = call compile TSF_settingsKey;
+		
 		/*
+		_userKeybindSet = call compile TSF_settingsKey;
 		_userKeybindSet params [
 			["_userKey", 19, [0]],
 			["_userShift", false, [false]],

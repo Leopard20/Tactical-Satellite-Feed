@@ -1,4 +1,5 @@
 TSF_allNearbyEnemies = [];
+
 [] spawn {
 	while {!isNull (findDisplay 53620)} do 
 	{
@@ -50,7 +51,7 @@ TSF_allNearbyEnemies = [];
 			};
 		
 		} forEach TSF_hiddenEnemyUnits;
-		uiSleep 1.5;
+		uiSleep 1;
 	};
 };
 
@@ -67,6 +68,6 @@ TSF_allNearbyEnemies = [];
 			
 		} forEach TSF_allNearbyEnemies;
 		
-		uiSleep 3;
+		uiSleep 1;
 	};
 };
