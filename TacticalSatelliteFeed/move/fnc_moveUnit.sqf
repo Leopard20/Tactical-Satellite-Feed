@@ -1,5 +1,5 @@
-params ["_unit", "_assignedTarget", "_LOSTarget", "_originalWatchDir", "_point2", "_selectedStance", "_rotation", "_isWater", "_unitInwater", "_time", "_lastTime"];
-private ["_target", "_lastTime", "_watchDir", "_fullMove", "_isIn", "_watchPos", "_multi", "_weapon", "_ok2", "_ok1", "_ok3"];
+params ["_unit", "_assignedTarget", "_LOSTarget", "_originalWatchDir", "_point2", "_selectedStance", "_rotation", "_isWater", "_unitInwater", "_timer", "_lastTime"];
+private ["_target", "_LTS", "_watchDir", "_fullMove", "_isIn", "_watchPos", "_multi", "_weapon", "_ok2", "_ok1", "_ok3"];
 _multi = if (_selectedStance == "PRONE") then {2} else {1};
 _target = _LOSTarget;
 _isIn = false;
@@ -7,8 +7,8 @@ if !(isNull _assignedTarget) then {
 	_isIn = [_unit, _assignedTarget] call TSF_fnc_checkLOS;
 	_target = _assignedTarget;
 	if !(_isIn) then {
-		_lastTime = _unit getVariable "TSF_unitTargetLTS";
-		if (time - _lastTime > 15) then {
+		_LTS = _unit getVariable "TSF_unitTargetLTS";
+		if (time - _LTS > 15) then {
 			_unit setVariable ["TSF_unitTarget", objNull];
 			_unit setVariable ["TSF_unitCustomWatchDir", -1];
 			_target = _LOSTarget
@@ -60,13 +60,13 @@ if (!isNull _target && !_unitInwater) then {
 	};
 } else {
 	_unit setVariable ["TSF_weaponType" , ""];
-	if (time - _time > 3*_rotation*_multi || (_rotation > 1 && time - _lastTime > 1)) then {
+	if (_timer > 3*_rotation*_multi || (_rotation > 1 && _timer - _lastTime > 1)) then {
 		_ok1 = [_unit, primaryWeapon _unit] call TSF_fnc_checkWeapon;
 		if (_ok1) then {_unit selectWeapon (primaryWeapon _unit)} else {_unit selectWeapon (handgunWeapon _unit)};
 		_rotation = _rotation + 1; 
 		_watchDir = _point2 vectorDiff _unitPos; 
 		if !(_unit getVariable ["TSF_unitIsTurning", false]) then {[_unit, _watchDir, _selectedStance] spawn TSF_fnc_rotateUnit};
-		_lastTime = time;
+		_lastTime = _timer;
 	} else {_watchDir = _originalWatchDir};
 	_watchPos = _watchDir vectorAdd (eyePos _unit);
 	if !(_isWater) then {_watchPos = ASLToATL _watchPos};

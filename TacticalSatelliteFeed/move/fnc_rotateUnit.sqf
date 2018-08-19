@@ -19,7 +19,7 @@ if (_watchDirY*_vecDirY >= 0) then {
 if (_vecDirY < 0) then {_turn =-1*_turn};
 _traversed = 0;
 
-_rotate = if (_angle < 5) then {2} else {5};
+_rotate = if (_angle < 5) then {1} else {2.5};
 
 while {_traversed <= _angle} do {
 	_traversed = _traversed + _rotate*60/diag_fps;

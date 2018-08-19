@@ -240,8 +240,9 @@ while {count (_unit getVariable ["TSF_allPathMarkers", []]) != 0 && !(_unit getV
 						_stopMove = call compile format["TSF_%2_%1_NON_Anim",_selectedStance, _weapon];
 						_unit setVariable ["TSF_unitChangingMove", false];
 						_unit switchMove _StopMove;
+						doStop _unit;
 						[_unit,(_target vectorDiff _unitPos), _selectedStance] spawn TSF_fnc_rotateUnit;
-						while {alive _unit && (_unit getVariable ["TSF_unitIsTurning", false])} do {uiSleep 0.02};
+						while {alive _unit && (_unit getVariable ["TSF_unitIsTurning", false])} do {uiSleep 0.001};
 						_unit doWatch _target;
 						_EH = _unit addEventHandler ["fired", 
 						{
@@ -269,7 +270,7 @@ while {count (_unit getVariable ["TSF_allPathMarkers", []]) != 0 && !(_unit getV
 							_mags = getArray (configfile >> "CfgWeapons" >> "Throw" >> _x >> "magazines");
 							if (_grenade in _mags) then {_unit forceWeaponFire [_x,_x]};
 						} forEach _muzzles;
-						uiSleep 1;
+						uiSleep 2;
 						[_unit,(_unit getVariable "TSF_unitWatchDir"), _selectedStance] spawn TSF_fnc_rotateUnit;
 					};
 				};
@@ -357,7 +358,7 @@ while {count (_unit getVariable ["TSF_allPathMarkers", []]) != 0 && !(_unit getV
 					//if ([0,0] in (_unit getVariable ["TSF_allPathMarkers", []])) then {_unit call TSF_fnc_clearInvalidPath}; 
 					(_unit getVariable ["TSF_allPathMarkers", []]) deleteAt 0;
 				};
-				_time = time;
+				//_time = time;
 				_rotation = 1;
 				_baseMove = _unit getVariable "TSF_baseMove";
 				_watchDir = _unit getVariable "TSF_unitWatchDir";
@@ -375,8 +376,8 @@ while {count (_unit getVariable ["TSF_allPathMarkers", []]) != 0 && !(_unit getV
 				_selectedStance = _unit getVariable "TSF_unitStance";
 				_walkBase  = call compile format["TSF_Base_%2_%1_WALK_Anim",_selectedStance,_weapon];
 				_prevMove = "";
-				_lastTime = _time;
 				_timer = 0;
+				_lastTime = _timer;
 				_moveDir = _point2 vectorDiff _point1;
 				_assignedTarget = _unit getVariable ["TSF_unitTarget", objNull];
 				_originalWatchDir = _watchDir;
@@ -390,7 +391,7 @@ while {count (_unit getVariable ["TSF_allPathMarkers", []]) != 0 && !(_unit getV
 						_unitPos = if (_isWater) then {getPosASLVisual _unit} else {getPosATLVisual _unit};
 						if (_engage && !_firstDot && _timer < 8) then {
 							_assignedTarget = _unit getVariable ["TSF_unitTarget", objNull];
-							_result = [_unit, _assignedTarget, _LOSTarget, _originalWatchDir, _point2, _selectedStance, _rotation, _isWater, _unitInwater, _time, _lastTime] call TSF_fnc_moveUnit;
+							_result = [_unit, _assignedTarget, _LOSTarget, _originalWatchDir, _point2, _selectedStance, _rotation, _isWater, _unitInwater, _timer, _lastTime] call TSF_fnc_moveUnit;
 							_FullMove = _result select 0;
 							_rotation = _result select 1;
 							_lastTime = _result select 2;
@@ -398,14 +399,14 @@ while {count (_unit getVariable ["TSF_allPathMarkers", []]) != 0 && !(_unit getV
 							_unit setVariable ["TSF_assignedMove", _FullMove];
 							_unit disableAI "MOVE";
 						} else {
-							if (time - _time > 3*_rotation*_multi || (_rotation > 1 && time - _lastTime > 1)) then {
+							if (_timer > 3*_rotation*_multi || (_rotation > 1 && _timer - _lastTime > 1)) then {
 								_rotation = _rotation + 1; 
 								_ok1 = [_unit, primaryWeapon _unit] call TSF_fnc_checkWeapon;
 								if (_ok1) then {_unit selectWeapon (primaryWeapon _unit)} else {_unit selectWeapon (handgunWeapon _unit)};
 								_watchDir = _point2 vectorDiff _unitPos; 
 								if !(_unit getVariable ["TSF_unitIsTurning", false]) then {[_unit, _watchDir, _selectedStance] spawn TSF_fnc_rotateUnit};
 								_unitConfused = true;
-								_lastTime = time;
+								_lastTime = _timer;
 							}  else {_watchDir = _originalWatchDir};
 							_unit setVariable ["TSF_unitWatchDir", _watchDir];
 							_dir = [_unitPos, _point2, _watchDir, _unitInwater] call TSF_fnc_getWatchMoveDir;
@@ -422,8 +423,8 @@ while {count (_unit getVariable ["TSF_allPathMarkers", []]) != 0 && !(_unit getV
 					};
 					_unit playMoveNow (_unit getVariable "TSF_assignedMove");
 					_unit setUnitPos _unitSetPos;
-					uiSleep 0.1; 
-					_timer = _timer + 0.1;
+					uiSleep 0.01; 
+					_timer = _timer + 0.01;
 				};
 				if (_unit getVariable ["TSF_unitEngaging", false]) then {
 					_unitPos = if (_isWater) then {getPosASLVisual _unit} else {getPosATLVisual _unit};
@@ -499,9 +500,9 @@ while {count (_unit getVariable ["TSF_allPathMarkers", []]) != 0 && !(_unit getV
 				_initLimit = _limit;
 				while {(_unit getVariable ["TSF_unitIsClimbing", false]) && alive _unit && !(_unit getVariable ["TSF_cancelMove", false])} do
 				{
-					uiSleep 0.05;
+					uiSleep 0.01;
 					if (((animationState _unit) select [12, 1]) == "h") then {_limit = _initLimit*2};
-					_timer = _timer + 0.05;
+					_timer = _timer + 0.01;
 					if (_timer >= _limit) exitWith {};
 				};
 	
@@ -517,7 +518,7 @@ while {count (_unit getVariable ["TSF_allPathMarkers", []]) != 0 && !(_unit getV
 			};
 		};
 	};
-	uiSleep 0.02;
+	uiSleep 0.01;
 };
 
 [] spawn TSF_fnc_clearSyncLine;
