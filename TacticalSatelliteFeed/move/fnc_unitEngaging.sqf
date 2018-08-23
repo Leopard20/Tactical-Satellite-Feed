@@ -22,12 +22,17 @@ if (needReload _unit > 0.95) then {reload _unit};
 _unit forceWeaponFire [_wpn, _mode];
 _unit reveal _target;
 _unit doFire _target;
-while {_time <= _sleepTime && alive _unit && alive _target && (count (crew _target) != 0) && (_unit getVariable "TSF_unitState" == 0) && !(_unit getVariable "TSF_cancelMove")&& (_unit getVariable "TSF_unitEngaging")} do {uiSleep 1; _time = _time + 1};
+waitUntil {
+	_time = _time + 1/diag_fps;
+	!(_time <= _sleepTime && alive _unit && alive _target && (count (crew _target) != 0) && (_unit getVariable "TSF_unitState" == 0) && !(_unit getVariable "TSF_cancelMove")&& (_unit getVariable "TSF_unitEngaging"))
+};
 
 if (_unit getVariable "TSF_unitState" == 0 && !(_unit getVariable ["TSF_unitIsTurning", false]) && !(_unit getVariable "TSF_cancelMove") && (_unit getVariable "TSF_unitEngaging")) then {
 	_nextMove = (_unit getVariable "TSF_baseMove") + _dir;
-	_unit setVariable ["TSF_unitChangingMove", true];
+	_true = if (TSF_createMoveEH) then {true} else {false};
+	_unit setVariable ["TSF_unitChangingMove", _true];
 	_unit setVariable ["TSF_assignedMove", _nextMove];
 	_unit playMoveNow _nextMove;
 };
 _unit setVariable ["TSF_unitEngaging", false];
+_unit setVariable ["TSF_unitChangingMove", false];

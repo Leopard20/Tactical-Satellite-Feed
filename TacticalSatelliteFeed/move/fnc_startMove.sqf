@@ -5,7 +5,7 @@ private [
 	"_skipNext", "_sprint1", "_syncPoints1", "_syncPoints2", "_syncedUnit1", "_syncedUnit2" ,"_dist","_customStance","_stanceNum","_dir", "_FullMove", 
 	"_unitNumber","_path","_unit_stanceChangePos","_match","_point1","_point2","_stance","_index","_moveDir","_dir2","_watchDir", "_selectedStance", 
 	"_stanceUnit", "_unitInwater", "_baseMove", "_EH", "_watchPos", "_timer", "_unitSetPos", "_playerGrp", "_tempGrp", "_initCount", "_multi", "_weapon", 
-	"_lastTime", "_depth", "_hasNade", "_grenade", "_mode"
+	"_lastTime", "_depth", "_hasNade", "_grenade", "_mode", "_text", "_txt"
 	];
 	
 if !(alive _unit) exitWith {};
@@ -20,6 +20,7 @@ _unit disableAI "MOVE";
 _unit disableAI "AUTOTARGET";
 _unit disableAI "AUTOCOMBAT";
 _unit setVariable ["TSF_unitChangingMove", false];
+
 if (_unit getVariable ["TSF_AnimChangedEH", -1] == -1) then {
 	_EH = _unit addEventHandler ["AnimChanged", {
 		_unitA = _this select 0;
@@ -31,6 +32,8 @@ if (_unit getVariable ["TSF_AnimChangedEH", -1] == -1) then {
 	}];
 	_unit setVariable ["TSF_AnimChangedEH", _EH];
 };
+
+
 _unitConfused = false;
 _unit setVariable ["TSF_unitState", 1];
 _unit setVariable ["TSF_unitTarget", objNull];
@@ -57,9 +60,10 @@ if (behaviour _unit == "COMBAT") then
 };
 
 _action = -1;
+_text = format["TSF_unit%1_EH", ([_unit] call TSF_fnc_getUnitNumber)];
+(_unit getVariable ["TSF_assigned_EHs", []]) pushBackUnique _text;
 
-while {count (_unit getVariable ["TSF_allPathMarkers", []]) != 0 && !(_unit getVariable ["TSF_cancelMove", false]) && alive _unit} do
-{
+waitUntil {
 	//is unit busy?
 	if (_unit getVariable ["TSF_unitState", 1] != 0) then {
 		_path = _unit getVariable ["TSF_allPathMarkers", []];
@@ -102,7 +106,7 @@ while {count (_unit getVariable ["TSF_allPathMarkers", []]) != 0 && !(_unit getV
 		
 		_unitInwater = false;
 		_unitPos = if (_isWater) then {getPosASLVisual _unit} else {getPosATLVisual _unit};
-		_depth = getTerrainHeightASL _unitPos;
+		_depth = (_unitPos select 2) - (getTerrainHeightASL _unitPos);
 		if (_isWater && (_unitPos select 2) <= 0 && _depth <= -1.8) then {_unitInwater = true};
 		
 		
@@ -148,7 +152,7 @@ while {count (_unit getVariable ["TSF_allPathMarkers", []]) != 0 && !(_unit getV
 						_watchDir = _endPoint vectorDiff _point1;
 						_unit setVariable ["TSF_unitCustomWatchDir", _watchDir];
 					} else {
-						if (((_unit getVariable ["TSF_unitCustomWatchDir", -1]) isEqualTo -1) OR _sprint1) then {
+						if (((_unit getVariable ["TSF_unitCustomWatchDir", -1]) isEqualTo -1) || _sprint1) then {
 							_watchDir = _moveDir;
 						};
 						if !((_unit getVariable ["TSF_unitCustomWatchDir", -1]) isEqualTo -1)  then {
@@ -160,7 +164,6 @@ while {count (_unit getVariable ["TSF_allPathMarkers", []]) != 0 && !(_unit getV
 					if (_unit getVariable ["TSF_cancelMove", false]) exitWith {};
 					_unit setVariable ["TSF_unitIsTurning", false];
 					[_unit,_watchDir, _selectedStance] spawn TSF_fnc_rotateUnit;
-					_unit setVariable ["TSF_unitWatchDir", _watchDir];
 					//while {alive _unit && (_unit getVariable ["TSF_unitIsTurning", false])} do {uiSleep 0.02};
 					_sprText = ["slow", "Fast"] select ([false, true] find _sprint1);
 					_baseMove = call compile format["TSF_Base_%3_%1_%2_Anim",_selectedStance, _sprText, _weapon];
@@ -173,9 +176,9 @@ while {count (_unit getVariable ["TSF_allPathMarkers", []]) != 0 && !(_unit getV
 					_unit setVariable ["TSF_unitCustomWatchDir", -1];
 					_unit setVariable ["TSF_unitStance", _selectedStance];
 					_unit setVariable ["TSF_unitCustomStance", ""];
-					_unit setVariable ["TSF_unitWatchDir", _watchDir];
 					_unit setPosASLW [_unitPos select 0, _unitPos select 1, -2];
 				};
+				_unit setVariable ["TSF_unitWatchDir", _watchDir];
 				_unitSetPos = ["UP", "MIDDLE", "DOWN", "AUTO"] select (["STAND", "CROUCH", "PRONE", "UNDEFINED"] find _selectedStance);
 				_FullMove = _baseMove + _dir;
 				_unit setVariable ["TSF_assignedMove", _FullMove];
@@ -203,7 +206,7 @@ while {count (_unit getVariable ["TSF_allPathMarkers", []]) != 0 && !(_unit getV
 				};
 
 				if (_count != 1 && _action == 0) then {hintSilent "You can only perform a mount action at the end of the unit path."};
-				if (_action == 5 OR _action == 6) then {
+				if (_action == 5 || _action == 6) then {
 					_tempGrp = createGroup (side _unit);
 					_assignedTeam = _unit getVariable ["TSF_ASSIGNED_TEAM_COLOR", "MAIN"];
 					_playerGrp = group _unit;
@@ -242,7 +245,7 @@ while {count (_unit getVariable ["TSF_allPathMarkers", []]) != 0 && !(_unit getV
 						_unit switchMove _StopMove;
 						doStop _unit;
 						[_unit,(_target vectorDiff _unitPos), _selectedStance] spawn TSF_fnc_rotateUnit;
-						while {alive _unit && (_unit getVariable ["TSF_unitIsTurning", false])} do {uiSleep 0.001};
+						waitUntil {!alive _unit || !(_unit getVariable ["TSF_unitIsTurning", false])};
 						_unit doWatch _target;
 						_EH = _unit addEventHandler ["fired", 
 						{
@@ -277,7 +280,7 @@ while {count (_unit getVariable ["TSF_allPathMarkers", []]) != 0 && !(_unit getV
 				
 				
 				_unit setVariable ["TSF_unitAction", _action];
-				if (_action == 2 OR _action == 3 OR _action == 4) then {
+				if (_action == 2 || _action == 3 || _action == 4) then {
 					
 					_stopMove = call compile format["TSF_%2_%1_NON_Anim",stance _unit, _weapon];
 					_unit switchMove _stopMove;
@@ -347,7 +350,8 @@ while {count (_unit getVariable ["TSF_allPathMarkers", []]) != 0 && !(_unit getV
 			{
 				_unit setVariable ["TSF_unitState", 0];
 				_unit playMoveNow (_unit getVariable "TSF_assignedMove");
-				_unit setVariable ["TSF_unitChangingMove", true];
+				_true = if (TSF_createMoveEH) then {true} else {false};
+				_unit setVariable ["TSF_unitChangingMove", _true];
 				_unit setUnitPos _unitSetPos;
 				_firstDot = false;
 				if (_count == _initCount) then {_firstDot = true};
@@ -359,9 +363,8 @@ while {count (_unit getVariable ["TSF_allPathMarkers", []]) != 0 && !(_unit getV
 					(_unit getVariable ["TSF_allPathMarkers", []]) deleteAt 0;
 				};
 				//_time = time;
-				_rotation = 1;
 				_baseMove = _unit getVariable "TSF_baseMove";
-				_watchDir = _unit getVariable "TSF_unitWatchDir";
+				_originalWatchDir = _unit getVariable "TSF_unitWatchDir";
 				_engage = [true, false] select (_unit getVariable ["TSF_unitHoldFire", 0]);
 				if (behaviour _unit == "STEALTH" && isNull(_unit getVariable ["TSF_unitTarget", objNull])) then {_engage = false};
 				if (_unitInwater) then {_engage = false};
@@ -371,31 +374,46 @@ while {count (_unit getVariable ["TSF_allPathMarkers", []]) != 0 && !(_unit getV
 				_men = [_men,[],{_unit distance2D _x},"ASCEND"] call BIS_fnc_sortBy;
 				_veh = [_veh,[],{_unit distance2D _x},"ASCEND"] call BIS_fnc_sortBy;
 				_inLOS = _men + _veh;
-				if (count _inLOS == 0) then {_LOSTarget = objNull} else {_LOSTarget = _inLOS select 0};
+				_LOSTarget = if (count _inLOS == 0) then {objNull} else {_inLOS select 0};
 				
 				_selectedStance = _unit getVariable "TSF_unitStance";
 				_walkBase  = call compile format["TSF_Base_%2_%1_WALK_Anim",_selectedStance,_weapon];
-				_prevMove = "";
-				_timer = 0;
-				_lastTime = _timer;
-				_moveDir = _point2 vectorDiff _point1;
 				_assignedTarget = _unit getVariable ["TSF_unitTarget", objNull];
-				_originalWatchDir = _watchDir;
 				_watchPos = (_unit getVariable "TSF_unitWatchDir") vectorAdd (eyePos _unit);
 				if !(_isWater) then {_watchPos = ASLToATL _watchPos};
 				_unit doWatch _watchPos;
 				_multi = if (_selectedStance == "PRONE") then {2} else {1};
-				while {(_unit distance2D _point2 > 1.1) && !(_unit getVariable ["TSF_cancelMove", false]) && alive _unit} do {
-					if (currentCommand _unit != "STOP" OR !alive _unit) exitWith {(_unit setVariable ["TSF_cancelMove", true])};
+				
+				_unit setVariable ["TSF_lastCycle", 0];
+				_unit setVariable ["TSF_currentCycle", 1];
+				_unit setVariable ["TSF_unitMove_rotation", 1];
+				_unit setVariable ["TSF_unitMove_timer", 0];
+				_unit setVariable ["TSF_unitMove_lastTime", 0];
+				_unit setVariable ["TSF_unitReadyToMove", true];
+				[_text, "onEachFrame", 
+				{
+					params ["_unit", "_selectedStance", "_point2", "_firstDot", "_LOSTarget", "_engage", "_multi", "_unitSetPos", "_assignedTarget", "_isWater", "_unitInwater", "_originalWatchDir"];
+					private ["_watchDir"];
+					_lastCycle = _unit getVariable ["TSF_lastCycle", 0];
+					_currentCycle = _unit getVariable ["TSF_currentCycle", 0];
+					_currentCycle = _currentCycle + 1;
+					_unit setVariable ["TSF_currentCycle", _currentCycle];
+					if (!(_unit getVariable ["TSF_unitReadyToMove", false]) || (_currentCycle-_lastCycle < 2)) exitWith {};
+					_unit setVariable ["TSF_lastCycle", _currentCycle];
+					if (((_unit distance2D _point2 <= 1.1) || (_unit getVariable ["TSF_cancelMove", false]) || !alive _unit || (currentCommand _unit != "STOP"))) exitWith {_unit setVariable ["TSF_unitReadyToMove", false]};
+					_rotation = _unit getVariable "TSF_unitMove_rotation";
+					_timer = _unit getVariable "TSF_unitMove_timer";
+					_lastTime = _unit getVariable "TSF_unitMove_lastTime";
+					_baseMove = _unit getVariable "TSF_baseMove";
 					if !(_unit getVariable ["TSF_unitEngaging", false]) then {
 						_unitPos = if (_isWater) then {getPosASLVisual _unit} else {getPosATLVisual _unit};
 						if (_engage && !_firstDot && _timer < 8) then {
-							_assignedTarget = _unit getVariable ["TSF_unitTarget", objNull];
 							_result = [_unit, _assignedTarget, _LOSTarget, _originalWatchDir, _point2, _selectedStance, _rotation, _isWater, _unitInwater, _timer, _lastTime] call TSF_fnc_moveUnit;
 							_FullMove = _result select 0;
 							_rotation = _result select 1;
 							_lastTime = _result select 2;
-							_unit setVariable ["TSF_unitChangingMove", true];
+							_true = if (TSF_createMoveEH) then {true} else {false};
+							_unit setVariable ["TSF_unitChangingMove", _true];
 							_unit setVariable ["TSF_assignedMove", _FullMove];
 							_unit disableAI "MOVE";
 						} else {
@@ -412,25 +430,32 @@ while {count (_unit getVariable ["TSF_allPathMarkers", []]) != 0 && !(_unit getV
 							_dir = [_unitPos, _point2, _watchDir, _unitInwater] call TSF_fnc_getWatchMoveDir;
 							_FullMove = _baseMove + _dir;
 							_unit setVariable ["TSF_assignedMove", _FullMove];
-							_unit setVariable ["TSF_unitChangingMove", true];
+							_true = if (TSF_createMoveEH) then {true} else {false};
+							_unit setVariable ["TSF_unitChangingMove", _true];
 							_unit doFire objNull;
 							_watchPos = _watchDir vectorAdd (eyePos _unit);
 							if !(_isWater) then {_watchPos = ASLToATL _watchPos};
 							_unit doWatch _watchPos;
 							_unit setVariable ["TSF_weaponType" , ""];
 						};
-						
+						_unit setVariable ["TSF_unitMove_rotation", _rotation];
+						_unit setVariable ["TSF_unitMove_lastTime", _lastTime];
 					};
-					_unit playMoveNow (_unit getVariable "TSF_assignedMove");
-					_unit setUnitPos _unitSetPos;
-					uiSleep 0.01; 
-					_timer = _timer + 0.01;
-				};
+					_unit playMoveNow (_unit getVariable ["TSF_assignedMove", ""]);
+					_unit setUnitPos _unitSetPos; 
+					_timer = _timer + 1/diag_fps;
+					_unit setVariable ["TSF_unitMove_timer", _timer];
+				}, [_unit, _selectedStance, _point2, _firstDot, _LOSTarget, _engage, _multi, _unitSetPos, _assignedTarget, _isWater, _unitInwater, _originalWatchDir]] call BIS_fnc_addStackedEventHandler;
+				
+				waitUntil {!(_unit getVariable ["TSF_unitReadyToMove", false])};
+				
+				if (currentCommand _unit != "STOP" || !alive _unit) then {(_unit setVariable ["TSF_cancelMove", true])};
 				if (_unit getVariable ["TSF_unitEngaging", false]) then {
 					_unitPos = if (_isWater) then {getPosASLVisual _unit} else {getPosATLVisual _unit};
 					_dir = [_unitPos, _point2, (_unit getVariable "TSF_unitWatchDir"), _unitInwater] call TSF_fnc_getWatchMoveDir;
 					_FullMove = _walkBase + _dir;
-					_unit setVariable ["TSF_unitChangingMove", true];
+					_true = if (TSF_createMoveEH) then {true} else {false};
+					_unit setVariable ["TSF_unitChangingMove", _true];
 					_unit setVariable ["TSF_assignedMove", _FullMove];
 					_unit playMoveNow _FullMove;
 					_unit setVariable ["TSF_unitEngaging", false];
@@ -460,7 +485,7 @@ while {count (_unit getVariable ["TSF_allPathMarkers", []]) != 0 && !(_unit getV
 				_unit setVariable ["TSF_unitIsClimbing", true];
 				uiSleep 0.05;
 				[_unit,_moveDir, _selectedStance] spawn TSF_fnc_rotateUnit;
-				while {alive _unit && (_unit getVariable ["TSF_unitIsTurning", false])} do {uiSleep 0.001};
+				waitUntil {!alive _unit || !(_unit getVariable ["TSF_unitIsTurning", false])};
 				switch (count (_path select 0)) do {
 					case 5:
 					{
@@ -498,12 +523,12 @@ while {count (_unit getVariable ["TSF_allPathMarkers", []]) != 0 && !(_unit getV
 				_timer = 0;
 				_limit = if (_selectedStance == "CROUCH") then {4} else {2.5};
 				_initLimit = _limit;
-				while {(_unit getVariable ["TSF_unitIsClimbing", false]) && alive _unit && !(_unit getVariable ["TSF_cancelMove", false])} do
+				waitUntil
 				{
 					uiSleep 0.01;
 					if (((animationState _unit) select [12, 1]) == "h") then {_limit = _initLimit*2};
 					_timer = _timer + 0.01;
-					if (_timer >= _limit) exitWith {};
+					(_timer > _limit || !(_unit getVariable ["TSF_unitIsClimbing", false]) || !alive _unit || (_unit getVariable ["TSF_cancelMove", false]))
 				};
 	
 				waitUntil {(animationState _unit) select [0,4] != "babe"};
@@ -518,7 +543,7 @@ while {count (_unit getVariable ["TSF_allPathMarkers", []]) != 0 && !(_unit getV
 			};
 		};
 	};
-	uiSleep 0.01;
+	(count(_unit getVariable ["TSF_allPathMarkers", []]) == 0 || (_unit getVariable ["TSF_cancelMove", false]) || !alive _unit)
 };
 
 [] spawn TSF_fnc_clearSyncLine;
@@ -530,6 +555,7 @@ _unit enableAI "MOVE";
 _unit enableAI "AUTOTARGET";
 _unit enableAI "AUTOCOMBAT";
 
+{[_x, "onEachFrame"] call BIS_fnc_removeStackedEventHandler} forEach (_unit getVariable ["TSF_assigned_EHs", []]);
 
 _unit setVariable ["TSF_unitCustomWatchDir", -1];
 _unit setVariable ["TSF_unitChangingMove", false];
