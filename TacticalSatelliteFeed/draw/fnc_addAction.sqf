@@ -104,7 +104,7 @@ if (_action == 1) then {
 		TSF_currentActionIndex = [_unit,_lastElement, _action];
 		TSF_ActionSelectMode = true;
 		["TSF_mouseDraw_EH", "onEachFrame", {
-			params ["_unit", "_lastElement", "_height", "_selectedDot"];
+			params ["_unit", "_lastElement", "_height", "_selectedDot", "_action", "_isFinal"];
 			private ["_uavPos", "_uavWatchDir", "_uavProjection", "_proLine", "_cos", "_offset", "_angle", "_posFinal", "_dir"];
 			if !(TSF_ActionSelectMode && TSF_CamActive) exitWith {["TSF_mouseDraw_EH", "onEachFrame"] call BIS_fnc_removeStackedEventHandler};
 			_pos = getMousePosition;
@@ -127,6 +127,6 @@ if (_action == 1) then {
 			_posFinal = _uavProjection vectorAdd _dir;
 		//	};
 			(_unit getVariable ["TSF_allActions", []]) set [_lastElement, [_selectedDot,_posFinal, _action, _isFinal]];
-		}, [_unit, _lastElement, _height, _selectedDot]] call BIS_fnc_addStackedEventHandler
+		}, [_unit, _lastElement, _height, _selectedDot, _action, _isFinal]] call BIS_fnc_addStackedEventHandler
 	};
 };

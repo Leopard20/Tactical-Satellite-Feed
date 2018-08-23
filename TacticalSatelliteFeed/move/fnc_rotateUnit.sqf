@@ -20,8 +20,9 @@ if (_vecDirY < 0) then {_turn =-1*_turn};
 _unit setVariable ["TSF_rotation_traversed", 0];
 
 _rotate = if (_angle < 5) then {2} else {4};
-_txt = format["TSF_unit%1_EH_Dir", ([_unit] call TSF_fnc_getUnitNumber)];
-(_unit getVariable ["TSF_assigned_EHs", []]) pushBackUnique _txt;
+_txt = format["TSF_unit%1_rotation_EH", ([_unit] call TSF_fnc_getUnitNumber)];
+if (_unit getVariable ["TSF_rotation_EH", ""] != "") then {[(_unit getVariable "TSF_rotation_EH"), "onEachFrame"] call BIS_fnc_removeStackedEventHandler};
+_unit setVariable ["TSF_rotation_EH", _txt]; 
 [_txt, "onEachFrame", 
 {
 	params ["_unit", "_angle", "_rotate", "_vecDir", "_turn", "_txt", "_watchDir"];
@@ -29,6 +30,7 @@ _txt = format["TSF_unit%1_EH_Dir", ([_unit] call TSF_fnc_getUnitNumber)];
 	if (_traversed > _angle || !(_unit getVariable ["TSF_unitIsTurning", false])) exitWith {
 		[_txt, "onEachFrame"] call BIS_fnc_removeStackedEventHandler;
 		_unit setVectorDir _watchDir;
+		_unit setVariable ["TSF_rotation_EH", ""];
 		_unit setVariable ["TSF_unitIsTurning", false];
 	};
 	_traversed = _traversed + _rotate*60/diag_fps;

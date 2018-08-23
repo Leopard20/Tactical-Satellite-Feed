@@ -556,7 +556,8 @@ _unit enableAI "AUTOTARGET";
 _unit enableAI "AUTOCOMBAT";
 
 {[_x, "onEachFrame"] call BIS_fnc_removeStackedEventHandler} forEach (_unit getVariable ["TSF_assigned_EHs", []]);
-
+if (_unit getVariable ["TSF_rotation_EH", ""] != "") then {[(_unit getVariable "TSF_rotation_EH"), "onEachFrame"] call BIS_fnc_removeStackedEventHandler};
+_unit setVariable ["TSF_assigned_EHs", []];
 _unit setVariable ["TSF_unitCustomWatchDir", -1];
 _unit setVariable ["TSF_unitChangingMove", false];
 _unit setVariable ["TSF_assignedMove", ""];

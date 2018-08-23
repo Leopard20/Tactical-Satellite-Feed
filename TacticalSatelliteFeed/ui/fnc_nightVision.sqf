@@ -19,7 +19,9 @@ if !(TSF_NVG_Active) then {
 	};
 	_aperture = 0.25+moonIntensity/3;
 	_hour = date select 3;
-	if (sunOrMoon == 1 && _hour <= 18 && _hour >= 5) then {_aperture = _aperture + 10*(sunOrMoon-overcast + 0.15)} else {_aperture = _aperture - overcast/15};
+	_month = date select 1;
+	_offset = if (_month >= 10 OR _month <= 2) then {1} else {0};
+	if (sunOrMoon == 1 && _hour <= 18-_offset && _hour >= 6+_offset) then {_aperture = _aperture + 10*(sunOrMoon-overcast + 0.15)} else {_aperture = _aperture - overcast/15};
 	setAperture _aperture;
 	TSF_NVG_Active = true;
 } else {
