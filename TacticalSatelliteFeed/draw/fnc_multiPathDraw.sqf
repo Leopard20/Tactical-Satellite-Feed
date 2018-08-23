@@ -1,8 +1,4 @@
-private [
-	"_array","_units", "_num", "_unitPos", "_height", "_posFinal", "_dist", "_uavPos", "_pos", "_angle", "_offset", "_dir", 
-	"_magnitude", "_cos", "_proLine", "_mouseProjection", "_uavProjection", "_uavWatchDir", "_prevPos", "_finalVec", "_rotate",
-	"_count", "_isWater", "_add", "_vecDiff", "_normal"
-	];
+private ["_units", "_unitPos", "_pos", "_wrldPos","_count", "_isWater", "_rotate", "_finalVec", "_normal", "_vecDiff", "_array", "_multi", "_diff"];
 _units = TSF_allSelectedUnits;
 _units = _units - [player];
 TSF_allSelectedUnits = [];
@@ -11,8 +7,8 @@ TSF_multiDrawMode = true;
 player setVariable ["TSF_multiDrawCanceled", false];
 _unitPos = [0,0,0];
 _pos = getMousePosition;
-_prevPos = screenToWorld _pos;
-_isWater = surfaceIsWater _prevPos;
+_wrldPos = screenToWorld _pos;
+_isWater = surfaceIsWater _wrldPos;
 {
 	_add = if (_isWater) then {getPosASLVisual _x} else {getPosATLVisual _x};
 	_unitPos = _unitPos vectorAdd _add;
@@ -22,14 +18,20 @@ _isWater = surfaceIsWater _prevPos;
 } forEach _units;
 _unitPos = _unitPos apply {_x/(count _units)};
 
-
-if (_prevPos distance2D _unitPos > 1) then {_height = _unitPos select 2;_prevPos set [2, _height]};
 _count = count _units;
-while {TSF_camActive && TSF_LclickButtonUp && TSF_RclickButtonUp} do {
+
+["TSF_mouseDraw_EH", "onEachFrame", {
+	if !(TSF_camActive && TSF_LclickButtonUp && TSF_RclickButtonUp) exitWith {["TSF_mouseDraw_EH", "onEachFrame"] call BIS_fnc_removeStackedEventHandler};
+	params ["_units", "_count"];
+	private [
+		"_array", "_unitPos", "_height", "_posFinal", "_dist", "_uavPos", "_pos", "_angle", "_offset", "_dir", 
+		"_magnitude", "_cos", "_proLine", "_mouseProjection", "_uavProjection", "_uavWatchDir", "_finalVec", "_rotate",
+		"_isWater", "_add", "_vecDiff", "_normal", "_diff"
+	];
 	_pos = getMousePosition;
 	_pos = screenToWorld _pos;	
+	_isWater = surfaceIsWater _pos;
 	_pos vectorAdd [0,0,0.15];
-	_dist = _prevPos distance2D _pos;
 	_unitPos = [0,0,0];
 	{
 		_add = if (_isWater) then {getPosASLVisual _x} else {getPosATLVisual _x};
@@ -73,6 +75,7 @@ while {TSF_camActive && TSF_LclickButtonUp && TSF_RclickButtonUp} do {
 	_units = _array apply {_x select 1};
 	_multi = if (TSF_ctrlHeld) then {3} else {1};
 	if (TSF_AltHeld) then {_finalVec = _vecDiff} else {_finalVec = _normal};
+	(findDisplay 53620) setVariable ["TSF_disp_posFinal", _posFinal];
 	for "_i" from 0 to _count-1 do
 	{
 		_unit = _units select _i;
@@ -81,8 +84,9 @@ while {TSF_camActive && TSF_LclickButtonUp && TSF_RclickButtonUp} do {
 		_pos =  _posFinal vectorAdd _offset;
 		(_unit getVariable ["TSF_allPathMarkers", []]) set [1, [_pos,TSF_ShiftHeld]];
 	};
-	sleep 0.001;
-};
+}, [_units, _count]] call BIS_fnc_addStackedEventHandler;
+
+waitUntil {!(TSF_camActive && TSF_LclickButtonUp && TSF_RclickButtonUp)};
 
 if !(player getVariable ["TSF_multiDrawCanceled", false]) then {
 	_unitPos = [0,0,0];
@@ -91,6 +95,7 @@ if !(player getVariable ["TSF_multiDrawCanceled", false]) then {
 		_unitPos = _unitPos vectorAdd _add;
 	} forEach _units;
 	_unitPos = _unitPos apply {_x/_count};
+	_posFinal = (findDisplay 53620) getVariable ["TSF_disp_posFinal", _unitPos];
 	_vecDiff = _posFinal vectorDiff _unitPos;
 	_vecDiff = vectorNormalized _vecDiff;
 	_normal = [90,_vecDiff] call TSF_fnc_vectorRotation;
@@ -109,7 +114,7 @@ if !(player getVariable ["TSF_multiDrawCanceled", false]) then {
 		_unit = _units select _i;
 		_diff = _count/2 - _i + 1;
 		(_unit getVariable ["TSF_allPathMarkers", []]) deleteAt 1;
-		[_posFinal, false,_unit, _diff*_multi, _finalVec, _rotate] spawn TSF_fnc_PathDraw;
+		[_posFinal, false, _unit, _diff*_multi, _finalVec, _rotate] spawn TSF_fnc_PathDraw;
 	};
 	if (TSF_hideLineInMultiPath) then {player setVariable ["TSF_drawAllLines", false]};
 } else {

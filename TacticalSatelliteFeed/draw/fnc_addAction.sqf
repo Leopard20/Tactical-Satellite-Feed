@@ -7,7 +7,7 @@ if (_action == 0) then {
 		_sideArray = [east, west, resistance, civilian];
 		_cfgVehicles = configFile >> "CfgVehicles";
 		waitUntil {TSF_ActionSelectMode};
-		while {(TSF_ActionSelectMode && TSF_CamActive)} do {
+		waitUntil {
 			_objs = nearestObjects [_unit, ["SHIP", "STATICWEAPON","CAR","TANK", "HELICOPTER", "PLANE"], 50]; 
 			_objs = _objs select {([(_sideArray select (getNumber(_cfgVehicles >> typeOf _x >> "side"))), (side player)] call BIS_fnc_sideIsFriendly) && ((count (fullCrew [_x, "", true]))!=(count (fullCrew [_x, "", false])))};
 			{
@@ -17,6 +17,7 @@ if (_action == 0) then {
 				TSF_nearestVehicles pushBackUnique [_x, _icon, _side];
 			} forEach _objs;
 			uiSleep 1;
+			!(TSF_ActionSelectMode && TSF_CamActive)
 		};
 	};
 };
@@ -26,10 +27,11 @@ if (_action == 1) then {
 		_dot = TSF_selectedRadialDot;
 		_unit = _dot select 1;
 		waitUntil {TSF_ActionSelectMode};
-		while {(TSF_ActionSelectMode && TSF_CamActive)} do {
+		waitUntil {
 			_objs = nearestObjects [_unit, ["allVehicles"], 300, true]; 
 			TSF_nearestEnemies = _objs select {!(_x isKindOf "Animal") && alive _x && ([(side _x), (side player)] call BIS_fnc_sideIsEnemy) && !(_x in TSF_hiddenEnemyUnits)};
 			uiSleep 1;
+			!(TSF_ActionSelectMode && TSF_CamActive)
 		};
 	};
 };
@@ -37,16 +39,16 @@ if (_action == 1) then {
 [_action] spawn {
 	params ["_action"];
 	private [
-		"_dot", "_unit", "_lastElement", "_pos", "_height", "_allPos", "_uavPos", "_unitPos", "_uavWatchDir", "_uavProjection", "_proLine", "_cos", 
-		"_offset", "_angle", "_posFinal", "_dir", "_point1", "_point2", "_diff", "_path", "_shifts", "_index", "_cnt", "_result", "_hasTop", "_top",
-		"_paths", "_shift"
+		"_dot", "_unit", "_lastElement", "_pos", "_height", "_allPos", "_point1", "_point2", "_diff", "_path", "_shifts", "_index", "_cnt", 
+		"_result", "_hasTop", "_top","_paths", "_shift", "_selectedDot"
 		];
 	_dot = TSF_selectedRadialDot;
 	TSF_selectedUnit = _dot select 1;
+	_selectedDot = _dot select 0;
 	_unit = TSF_selectedUnit;
 	_allActions = _unit getVariable ["TSF_allActions", []];
 	_allPos = _allActions apply {_x select 0};
-	_height = (_dot select 0) select 2;
+	_height = _selectedDot select 2;
 	_pos = getMousePosition;
 	_pos = screenToWorld _pos;
 	_pos set [2,_height];
@@ -59,7 +61,7 @@ if (_action == 1) then {
 		_paths = _unit getVariable ["TSF_allPathMarkers", []];
 		_path = _paths apply {_x select 0};
 		_shifts = _paths apply {_x select 1};
-		_index = _path find (_dot select 0);
+		_index = _path find _selectedDot;
 		_shift = _shifts select _index;
 		_cnt = count _path;
 		if (_cnt >= 2 && _index < _cnt-1) then {
@@ -91,17 +93,20 @@ if (_action == 1) then {
 		};
 	};
 	if (_action == 0 OR _action == 1) then {_isFinal = false};
-	if !((_dot select 0) in _allPos) then {
-		(_unit getVariable ["TSF_allActions", []]) pushBack [(_dot select 0),_pos, _action, _isFinal];
+	if !(_selectedDot in _allPos) then {
+		(_unit getVariable ["TSF_allActions", []]) pushBack [_selectedDot,_pos, _action, _isFinal];
 		_lastElement = count(_allActions) -1;
 	} else {
-		_lastElement = _allPos find (_dot select 0);
-		(_unit getVariable ["TSF_allActions", []]) set [_lastElement,[(_dot select 0),_pos, _action, _isFinal]];
+		_lastElement = _allPos find _selectedDot;
+		(_unit getVariable ["TSF_allActions", []]) set [_lastElement,[_selectedDot,_pos, _action, _isFinal]];
 	};
 	if (_action == 0 OR _action == 1 OR _action == 7) then {
 		TSF_currentActionIndex = [_unit,_lastElement, _action];
 		TSF_ActionSelectMode = true;
-		while {(TSF_ActionSelectMode && TSF_CamActive)} do {
+		["TSF_mouseDraw_EH", "onEachFrame", {
+			params ["_unit", "_lastElement", "_height", "_selectedDot"];
+			private ["_uavPos", "_uavWatchDir", "_uavProjection", "_proLine", "_cos", "_offset", "_angle", "_posFinal", "_dir"];
+			if !(TSF_ActionSelectMode && TSF_CamActive) exitWith {["TSF_mouseDraw_EH", "onEachFrame"] call BIS_fnc_removeStackedEventHandler};
 			_pos = getMousePosition;
 			_pos = screenToWorld _pos;
 			_pos = _pos vectorAdd [0,0,0.15];
@@ -121,8 +126,7 @@ if (_action == 1) then {
 			_dir = _dir apply {_x*_magnitude};
 			_posFinal = _uavProjection vectorAdd _dir;
 		//	};
-			(_unit getVariable ["TSF_allActions", []]) set [_lastElement, [(_dot select 0),_posFinal, _action, _isFinal]];
-			uiSleep 0.001;
-		};
+			(_unit getVariable ["TSF_allActions", []]) set [_lastElement, [_selectedDot,_posFinal, _action, _isFinal]];
+		}, [_unit, _lastElement, _height, _selectedDot]] call BIS_fnc_addStackedEventHandler
 	};
 };

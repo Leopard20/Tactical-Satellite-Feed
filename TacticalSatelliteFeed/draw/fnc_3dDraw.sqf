@@ -2,7 +2,7 @@ disableSerialization;
 ["TSF_CamDrawDot", "onEachFrame", 
 {
 		_var = player getVariable ["TSF_drawAllPath", true];
-		if ((isNull (findDisplay 53620)) OR !_var) exitWith {};
+		if (!TSF_camActive OR !_var) exitWith {};
 		private [
 			"_size","_unit", "_unitNumber", "_path", "_pos", "_alpha", "_TSF_TEAM_COLOR", "_TSF_ASSIGNED_TEAM_COLOR", "_TSF_PATH_MARKER", "_isIn", 
 			"_height", "_point", "_uav", "_scale"
@@ -54,7 +54,7 @@ if (TSF_useLineOrIcon) then {
 	["TSF_CamDrawLine", "onEachFrame", 
 	{
 		_var = (player getVariable ["TSF_drawAllPath", true]) && (player getVariable ["TSF_drawAllLines", true]);
-		if ((isNull (findDisplay 53620)) OR !_var) exitWith {};
+		if (!TSF_camActive OR !_var) exitWith {};
 		private [
 			"_dupe", "_rightArrow", "_leftArrow", "_addLeft", "_addStraight", "_addRight", "_midPoint", "_midPoint2", "_point5", "_point7", 
 			"_point6", "_point8", "_unitNumber", "_count", "_alpha", "_TSF_TEAM_COLOR", "_TSF_ASSIGNED_TEAM_COLOR", "_point1", "_point2", "_isIn1", "_isIn2", 
@@ -112,7 +112,7 @@ if (TSF_useLineOrIcon) then {
 ["TSF_CamDrawLine", "onEachFrame", 
 {
 		_var = (player getVariable ["TSF_drawAllPath", true]) && (player getVariable ["TSF_drawAllLines", true]);
-		if ((isNull (findDisplay 53620)) OR !_var) exitWith {};
+		if (!TSF_camActive OR !_var) exitWith {};
 		private [
 			"_count", "_alpha", "_TSF_TEAM_COLOR", "_TSF_ASSIGNED_TEAM_COLOR", "_point1", "_point2", "_isIn1", "_isIn2", 
 			"_diff", "_pos", "_half", "_angle", "_dist", "_height", "_dir", "_size", "_arrowMarker", "_multi", "_uav"
@@ -164,7 +164,7 @@ if (TSF_useLineOrIcon) then {
 ["TSF_watchDirLine", "onEachFrame", 
 {
 		_var = player getVariable ["TSF_drawAllPath", true];
-		if ((isNull (findDisplay 53620)) OR !_var) exitWith {};
+		if (!TSF_camActive OR !_var) exitWith {};
 		private [
 			"_dupe", "_rightArrow", "_leftArrow", "_addLeft", "_addStraight", "_addRight", "_point5", "_point7", "_point6", 
 			"_point8", "_alpha", "_TSF_TEAM_COLOR", "_TSF_ASSIGNED_TEAM_COLOR", "_point1", "_point2", "_isIn1", "_dir"
@@ -211,7 +211,7 @@ if (TSF_useLineOrIcon) then {
 
 ["TSF_unitDraw", "onEachFrame", 
 {
-		if (isNull (findDisplay 53620)) exitWith {};
+		if !TSF_camActive exitWith {};
 		_uav = getPosASLVisual TSF_camera;
 		_height = (_uav select 2) - (getTerrainHeightASL _uav);
 		_scale = if (_height > 40) then {35/_height} else {1};
@@ -238,7 +238,7 @@ if (TSF_useLineOrIcon) then {
 ["TSF_actionLineDraw", "onEachFrame", 
 {
 		_var = player getVariable ["TSF_drawAllPath", true];
-		if ((isNull (findDisplay 53620)) OR !_var) exitWith {};
+		if (!TSF_camActive OR !_var) exitWith {};
 		private ["_dupe", "_addStraight", "_unitNumber", "_alpha", "_color", "_point1", "_point2", "_isIn1", "_dir", "_point3", "_point4", "_isFinal"];
 		{
 			_ACTIONS = _x getVariable ["TSF_allActions", []];
@@ -276,7 +276,7 @@ if (TSF_useLineOrIcon) then {
 ["TSF_syncLineDraw", "onEachFrame", 
 {
 		_var = player getVariable ["TSF_drawAllPath", true];
-		if ((isNull (findDisplay 53620)) OR !_var) exitWith {};
+		if (!TSF_camActive OR !_var) exitWith {};
 		private ["_dupe", "_addStraight", "_color", "_point1", "_point2", "_isIn1", "_dir", "_isIn2", "_dir" ,"_point3", "_point4"];
 		{
 			if (_x isEqualTo -1 OR _x isEqualTo [0,0]) exitWith {};	
@@ -300,7 +300,7 @@ if (TSF_useLineOrIcon) then {
 ["TSF_actionVehDraw", "onEachFrame", 
 {
 		_var = player getVariable ["TSF_drawAllPath", true];
-		if ((isNull (findDisplay 53620)) OR !_var OR !TSF_ActionSelectMode) exitWith {};
+		if (!TSF_camActive OR !_var OR !TSF_ActionSelectMode) exitWith {};
 		{
 			_veh = _x select 0;
 			_icon = _x select 1;
@@ -328,7 +328,7 @@ if (TSF_useLineOrIcon) then {
 ["TSF_actionTargetDraw", "onEachFrame", 
 {
 		_var = player getVariable ["TSF_drawAllPath", true];
-		if ((isNull (findDisplay 53620)) OR !_var OR !TSF_ActionSelectMode) exitWith {};
+		if (!TSF_camActive OR !_var OR !TSF_ActionSelectMode) exitWith {};
 		{
 			_target = _x;
 			_targetPos = getPosATLVisual _target;
