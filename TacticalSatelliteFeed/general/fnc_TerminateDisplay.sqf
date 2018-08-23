@@ -1,4 +1,4 @@
-waitUntil {uiSleep 0.1;isNull(findDisplay 53620) OR (cameraOn != TSF_camera) OR (cameraView != "GUNNER")}; 
+waitUntil {isNull(findDisplay 53620) OR (cameraOn != TSF_camera) OR (cameraView != "GUNNER")}; 
 (findDisplay 53620) closeDisplay 2;
 TSF_CamActive = false; 
 hintSilent "";
