@@ -50,6 +50,7 @@ TSF_fnc_finish_drop = compile preprocessFileLineNumbers "TacticalSatelliteFeed\m
 TSF_fnc_finish_em = compile preprocessFileLineNumbers "TacticalSatelliteFeed\move\fnc_finish_em.sqf";
 TSF_fnc_getWeaponType = compile preprocessFileLineNumbers "TacticalSatelliteFeed\move\fnc_getWeaponType.sqf";
 TSF_fnc_checkWeapon = compile preprocessFileLineNumbers "TacticalSatelliteFeed\move\fnc_checkWeapon.sqf";
+TSF_fnc_switchWeapon = compile preprocessFileLineNumbers "TacticalSatelliteFeed\move\fnc_switchWeapon.sqf"; 
 
 TSF_fnc_startDraw = compile preprocessFileLineNumbers "TacticalSatelliteFeed\draw\fnc_3dDraw.sqf";
 TSF_fnc_renderCheck = compile preprocessFileLineNumbers "TacticalSatelliteFeed\draw\fnc_renderCheck.sqf";

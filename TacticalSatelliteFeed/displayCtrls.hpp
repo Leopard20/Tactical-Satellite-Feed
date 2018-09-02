@@ -106,8 +106,8 @@ class TSF_RscButton_Text
 	type = CT_BUTTON;
 	style = ST_CENTER;
 	text = "";
-	font = "TahomaB";
-	sizeEx = 0.04;
+	font = "PuristaMedium";
+	sizeEx = "0.03 / (getResolution select 5)";
 	colorText[] = {1,1,1,1};
 	colorDisabled[] = {0.3,0.3,0.3,0};
 	colorBackground[] = {0.7,0.7,0.7,0.5};
@@ -154,8 +154,8 @@ class TSF_RscText {
 	type = CT_STATIC;
 	style = ST_CENTER;
 	text = "";
-	font = "TahomaB";
-	sizeEx = 0.025;
+	font = "PuristaMedium";
+	sizeEx = "0.023 / (getResolution select 5)";
 	colorText[] = { 1, 1, 1, 1 };
 	colorBackground[] = {0,0.8,0,0.2};
 };
@@ -179,6 +179,7 @@ class TSF_SatelliteHUD {
 			y = 0.682 * safezoneH + safezoneY;
 			w = 0.0525 * safezoneW;
 			h = 0.082 * safezoneH;
+			tooltip = "Toggle Free Movement/Locked Mode";
 		};
 		class RscButton_1601: TSF_RscButton
 		{
@@ -189,6 +190,7 @@ class TSF_SatelliteHUD {
 			y = 0.794 * safezoneH + safezoneY;
 			w = 0.0525 * safezoneW;
 			h = 0.082 * safezoneH;
+			tooltip = "Toggle NVG";
 		};
 		class RscButton_1602: TSF_RscButton
 		{
@@ -313,6 +315,7 @@ class TSF_SatelliteHUD {
 			y = 0.668 * safezoneH + safezoneY;
 			w = 0.042 * safezoneW;
 			h = 0.064 * safezoneH;
+			tooltip = "Zoom Out";
 		};
 		class RscButton_1615: TSF_RscButton
 		{
@@ -324,6 +327,7 @@ class TSF_SatelliteHUD {
 			y = 0.766 * safezoneH + safezoneY;
 			w = 0.042 * safezoneW;
 			h = 0.064 * safezoneH;
+			tooltip = "Reset Zoom";
 		};
 		class RscButton_1616: TSF_RscButton
 		{
@@ -335,6 +339,7 @@ class TSF_SatelliteHUD {
 			y = 0.57 * safezoneH + safezoneY;
 			w = 0.042 * safezoneW;
 			h = 0.064 * safezoneH;
+			tooltip = "Zoom In";
 		};
 		class RscButton_1617: TSF_RscButton_Text
 		{
@@ -346,6 +351,7 @@ class TSF_SatelliteHUD {
 			y = 0.906 * safezoneH + safezoneY;
 			w = 0.0525 * safezoneW;
 			h = 0.082 * safezoneH;
+			tooltip = "Commit move";
 		};
 		
 		class RscButton_1663: TSF_RscButton_Text
@@ -358,6 +364,7 @@ class TSF_SatelliteHUD {
 			y = 0.906 * safezoneH + safezoneY;
 			w = 0.0525 * safezoneW;
 			h = 0.082 * safezoneH;
+			tooltip = "Stop all units";
 		};
 		
 		class RscButton_1654: TSF_RscButton
@@ -370,6 +377,7 @@ class TSF_SatelliteHUD {
 			y = 0.906 * safezoneH + safezoneY;
 			w = 0.0525 * safezoneW;
 			h = 0.082 * safezoneH;
+			tooltip = "Delete all paths";
 		};
 		
 		class RscButton_1618: TSF_RscButton
@@ -383,6 +391,7 @@ class TSF_SatelliteHUD {
 			y = 0.906 * safezoneH + safezoneY;
 			w = 0.0525 * safezoneW;
 			h = 0.082 * safezoneH;
+			tooltip = "Toggle Planning Mode";
 		};
 		class RscButton_1619: TSF_RscButton
 		{
@@ -395,6 +404,7 @@ class TSF_SatelliteHUD {
 			y = 0.346 * safezoneH + safezoneY;
 			w = 0.0525 * safezoneW;
 			h = 0.082 * safezoneH;
+			tooltip = "Hide all paths";
 		};
 		class RscButton_1655: TSF_RscButton
 		{
@@ -407,6 +417,7 @@ class TSF_SatelliteHUD {
 			y = 0.234 * safezoneH + safezoneY;
 			w = 0.0525 * safezoneW;
 			h = 0.082 * safezoneH;
+			tooltip = "Show last drawn path only";
 		};
 		class RscButton_1656: TSF_RscButton
 		{
@@ -419,6 +430,7 @@ class TSF_SatelliteHUD {
 			y = 0.122 * safezoneH + safezoneY;
 			w = 0.0525 * safezoneW;
 			h = 0.082 * safezoneH;
+			tooltip = "Hide connecting lines";
 		};
 		class RscButton_1661: TSF_RscButton
 		{
@@ -431,6 +443,7 @@ class TSF_SatelliteHUD {
 			y = 0.570 * safezoneH + safezoneY;
 			w = 0.0525 * safezoneW;
 			h = 0.082 * safezoneH;
+			tooltip = "Record path";
 		};
 		class RscButton_1662: TSF_RscButton
 		{
@@ -443,6 +456,7 @@ class TSF_SatelliteHUD {
 			y = 0.458 * safezoneH + safezoneY;
 			w = 0.0525 * safezoneW;
 			h = 0.082 * safezoneH;
+			tooltip = "Refresh squad";
 		};
 		
 		///_-_-_-_-_ Texts _-_-_-_-_\\\
@@ -542,7 +556,8 @@ class TSF_SatelliteHUD {
 			idc = 1630;
 			text = "1"; 
 			colorBackground[] = {0,0,0,0};
-			sizeEx = 0.04;
+			font = "TahomaB";
+			sizeEx = "0.035 / (getResolution select 5)";
 			x = 0.066875 * safezoneW + safezoneX;
 			y = 0.906 * safezoneH + safezoneY;
 			w = 0.0525 * safezoneW;
@@ -553,7 +568,8 @@ class TSF_SatelliteHUD {
 			idc = 1631;
 			text = "2"; 
 			colorBackground[] = {0,0,0,0};
-			sizeEx = 0.04;
+			font = "TahomaB";
+			sizeEx = "0.035 / (getResolution select 5)";
 			x = 0.125938 * safezoneW + safezoneX;
 			y = 0.906 * safezoneH + safezoneY;
 			w = 0.0525 * safezoneW;
@@ -564,7 +580,8 @@ class TSF_SatelliteHUD {
 			idc = 1632;
 			text = "3"; 
 			colorBackground[] = {0,0,0,0};
-			sizeEx = 0.04;
+			font = "TahomaB";
+			sizeEx = "0.035 / (getResolution select 5)";
 			x = 0.185 * safezoneW + safezoneX;
 			y = 0.906 * safezoneH + safezoneY;
 			w = 0.0525 * safezoneW;
@@ -575,7 +592,8 @@ class TSF_SatelliteHUD {
 			idc = 1633;
 			text = "4"; 
 			colorBackground[] = {0,0,0,0};
-			sizeEx = 0.04;
+			font = "TahomaB";
+			sizeEx = "0.035 / (getResolution select 5)";
 			x = 0.244062 * safezoneW + safezoneX;
 			y = 0.906 * safezoneH + safezoneY;
 			w = 0.0525 * safezoneW;
@@ -586,7 +604,8 @@ class TSF_SatelliteHUD {
 			idc = 1634;
 			text = "5"; 
 			colorBackground[] = {0,0,0,0};
-			sizeEx = 0.04;
+			font = "TahomaB";
+			sizeEx = "0.035 / (getResolution select 5)";
 			x = 0.303125 * safezoneW + safezoneX;
 			y = 0.906 * safezoneH + safezoneY;
 			w = 0.0525 * safezoneW;
@@ -597,7 +616,8 @@ class TSF_SatelliteHUD {
 			idc = 1635;
 			text = "6"; 
 			colorBackground[] = {0,0,0,0};
-			sizeEx = 0.04;
+			font = "TahomaB";
+			sizeEx = "0.035 / (getResolution select 5)";
 			x = 0.362187 * safezoneW + safezoneX;
 			y = 0.906 * safezoneH + safezoneY;
 			w = 0.0525 * safezoneW;
@@ -608,7 +628,8 @@ class TSF_SatelliteHUD {
 			idc = 1636;
 			text = "7"; 
 			colorBackground[] = {0,0,0,0};
-			sizeEx = 0.04;
+			font = "TahomaB";
+			sizeEx = "0.035 / (getResolution select 5)";
 			x = 0.42125 * safezoneW + safezoneX;
 			y = 0.906 * safezoneH + safezoneY;
 			w = 0.0525 * safezoneW;
@@ -619,7 +640,8 @@ class TSF_SatelliteHUD {
 			idc = 1637;
 			text = "8"; 
 			colorBackground[] = {0,0,0,0};
-			sizeEx = 0.04;
+			font = "TahomaB";
+			sizeEx = "0.035 / (getResolution select 5)";
 			x = 0.480312 * safezoneW + safezoneX;
 			y = 0.906 * safezoneH + safezoneY;
 			w = 0.0525 * safezoneW;
@@ -629,7 +651,8 @@ class TSF_SatelliteHUD {
 		{
 			idc = 1638;
 			text = "9"; 
-			sizeEx = 0.04;
+			font = "TahomaB";
+			sizeEx = "0.035 / (getResolution select 5)";
 			colorBackground[] = {0,0,0,0};
 			x = 0.539375 * safezoneW + safezoneX;
 			y = 0.906 * safezoneH + safezoneY;
@@ -640,7 +663,8 @@ class TSF_SatelliteHUD {
 		{
 			idc = 1639;
 			text = "10"; 
-			sizeEx = 0.04;
+			font = "TahomaB";
+			sizeEx = "0.035 / (getResolution select 5)";
 			colorBackground[] = {0,0,0,0};
 			x = 0.598437 * safezoneW + safezoneX;
 			y = 0.906 * safezoneH + safezoneY;
@@ -662,6 +686,7 @@ class TSF_SatelliteHUD {
 			y = safezoneY;
 			w = 0.046 * safezoneW;
 			h = 0.082 * safezoneH;
+			tooltip = "Mount";
 		};
 		class RscButton_1641: TSF_RscButton
 		{
@@ -675,6 +700,7 @@ class TSF_SatelliteHUD {
 			y = safezoneY;
 			w = 0.046 * safezoneW;
 			h = 0.082 * safezoneH;
+			tooltip = "Add Go-code";
 		};
 		class RscButton_1642: TSF_RscButton
 		{
@@ -688,6 +714,7 @@ class TSF_SatelliteHUD {
 			y = safezoneY;
 			w = 0.046 * safezoneW;
 			h = 0.082 * safezoneH;
+			tooltip = "Set ROE";
 		};
 		class RscButton_1643: TSF_RscButton
 		{
@@ -701,6 +728,7 @@ class TSF_SatelliteHUD {
 			y = safezoneY;
 			w = 0.046 * safezoneW;
 			h = 0.082 * safezoneH;
+			tooltip = "Attack";
 		};
 		
 		//Extra
@@ -730,6 +758,7 @@ class TSF_SatelliteHUD {
 			y = safezoneY;
 			w = 0.046 * safezoneW;
 			h = 0.082 * safezoneH;
+			tooltip = "Grenade";
 		};
 		class RscButton_1659: TSF_RscButton
 		{
@@ -743,6 +772,7 @@ class TSF_SatelliteHUD {
 			y = safezoneY;
 			w = 0.046 * safezoneW;
 			h = 0.082 * safezoneH;
+			tooltip = "Enhanced Movement";
 		};
 		class RscButton_1660: TSF_RscButton
 		{
@@ -857,6 +887,7 @@ class TSF_SatelliteHUD {
 			colorActive[] = { 1, 1, 1, 0 };
 			colorDisabled[] = { 1, 1, 1, 0 };
 			action = "if (TSF_showGoCodeMenu) then {player setVariable ['TSF_goCodeTriggeredA', true]}";
+			tooltip = "Trigger Go-code A";
 			x = safezoneX - 0.0525 * safezoneW;
 			y = safezoneY + 0.14*safezoneH;
 			w = 0.0525 * safezoneW;
@@ -870,6 +901,7 @@ class TSF_SatelliteHUD {
 			colorActive[] = { 1, 1, 1, 0 };
 			colorDisabled[] = { 1, 1, 1, 0 };
 			action = "if (TSF_showGoCodeMenu) then {player setVariable ['TSF_goCodeTriggeredB', true]}";
+			tooltip = "Trigger Go-code B";
 			x = safezoneX - 0.0525 * safezoneW;
 			y = safezoneY + 0.25*safezoneH;
 			w = 0.0525 * safezoneW;
@@ -879,6 +911,7 @@ class TSF_SatelliteHUD {
 		{
 			idc = 1652;
 			text = "TacticalSatelliteFeed\Pictures\Button_C.paa"; 
+			tooltip = "Trigger Go-code C";
 			color[] = { 1, 1, 1, 0 };
 			colorActive[] = { 1, 1, 1, 0 };
 			colorDisabled[] = { 1, 1, 1, 0 };

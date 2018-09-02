@@ -82,6 +82,7 @@ _count = count _units;
 		_diff = _count/2 - _i + 1;
 		_offset = _finalVec apply {_x*_diff*_multi};
 		_pos =  _posFinal vectorAdd _offset;
+		((_unit getVariable ["TSF_allPathMarkers", []]) select 0) set [1, TSF_ShiftHeld];
 		(_unit getVariable ["TSF_allPathMarkers", []]) set [1, [_pos,TSF_ShiftHeld]];
 	};
 }, [_units, _count]] call BIS_fnc_addStackedEventHandler;

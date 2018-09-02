@@ -19,7 +19,7 @@ if (!isNil "TSF_nightVision" OR TSF_NVG_Active) then {
 waitUntil {cameraOn == vehicle player || cameraOn == player};
 showHUD TSF_shownHud;
 _hr = date select 3;
-if (_hr > 18 || _hr < 7) then {
+if (_hr >= 18 || _hr <= 6) then {
 	detach TSF_camera;
 	_pos = getPosATL TSF_camera;
 	_h = (_pos select 2) + 2000;

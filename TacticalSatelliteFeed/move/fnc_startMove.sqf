@@ -163,6 +163,7 @@ waitUntil {
 					doStop _unit;
 					if (_unit getVariable ["TSF_cancelMove", false]) exitWith {};
 					_unit setVariable ["TSF_unitIsTurning", false];
+					
 					[_unit,_watchDir, _selectedStance] spawn TSF_fnc_rotateUnit;
 					//while {alive _unit && (_unit getVariable ["TSF_unitIsTurning", false])} do {uiSleep 0.02};
 					_sprText = ["slow", "Fast"] select ([false, true] find _sprint1);
@@ -244,6 +245,7 @@ waitUntil {
 						_unit setVariable ["TSF_unitChangingMove", false];
 						_unit switchMove _StopMove;
 						doStop _unit;
+						
 						[_unit,(_target vectorDiff _unitPos), _selectedStance] spawn TSF_fnc_rotateUnit;
 						waitUntil {!alive _unit || !(_unit getVariable ["TSF_unitIsTurning", false])};
 						_unit doWatch _target;
@@ -274,6 +276,7 @@ waitUntil {
 							if (_grenade in _mags) then {_unit forceWeaponFire [_x,_x]};
 						} forEach _muzzles;
 						uiSleep 2;
+						
 						[_unit,(_unit getVariable "TSF_unitWatchDir"), _selectedStance] spawn TSF_fnc_rotateUnit;
 					};
 				};
@@ -366,8 +369,11 @@ waitUntil {
 				_baseMove = _unit getVariable "TSF_baseMove";
 				_originalWatchDir = _unit getVariable "TSF_unitWatchDir";
 				_engage = [true, false] select (_unit getVariable ["TSF_unitHoldFire", 0]);
-				if (behaviour _unit == "STEALTH" && isNull(_unit getVariable ["TSF_unitTarget", objNull])) then {_engage = false};
-				if (_unitInwater) then {_engage = false};
+				if ((behaviour _unit == "STEALTH" && isNull(_unit getVariable ["TSF_unitTarget", objNull])) || _unitInwater) then {_engage = false} else {
+					if !(isNil "AIO_unitsToHoldFire") then {
+						if (_unit in AIO_unitsToHoldFire) then {_engage = false};
+					};
+				};
 				_inLOS = _nearbyEnemies select {[_unit, _x] call TSF_fnc_checkLOS}; 
 				_men = _inLOS select {_x isKindOf "MAN"};
 				_veh = _inLOS - _men;
@@ -400,31 +406,29 @@ waitUntil {
 					_unit setVariable ["TSF_currentCycle", _currentCycle];
 					if (!(_unit getVariable ["TSF_unitReadyToMove", false]) || (_currentCycle-_lastCycle < 2)) exitWith {};
 					_unit setVariable ["TSF_lastCycle", _currentCycle];
-					if (((_unit distance2D _point2 <= 1.1) || (_unit getVariable ["TSF_cancelMove", false]) || !alive _unit || (currentCommand _unit != "STOP"))) exitWith {_unit setVariable ["TSF_unitReadyToMove", false]};
+					if ((_unit getVariable ["TSF_rotation_traversed", 0]) > 180 || (_unit distance2D _point2 < 1) || (_unit getVariable ["TSF_cancelMove", false]) || !alive _unit || (currentCommand _unit != "STOP")) exitWith {_unit setVariable ["TSF_unitReadyToMove", false]};
 					_rotation = _unit getVariable "TSF_unitMove_rotation";
 					_timer = _unit getVariable "TSF_unitMove_timer";
 					_lastTime = _unit getVariable "TSF_unitMove_lastTime";
 					_baseMove = _unit getVariable "TSF_baseMove";
-					if !(_unit getVariable ["TSF_unitEngaging", false]) then {
+					if (!(_unit getVariable ["TSF_unitEngaging", false]) || _timer > 5) then {
+						_unit setVariable ["TSF_unitEngaging", false];
+						_unit setVariable ["TSF_unitChangingMove", false];
 						_unitPos = if (_isWater) then {getPosASLVisual _unit} else {getPosATLVisual _unit};
-						if (_engage && !_firstDot && _timer < 8) then {
-							_result = [_unit, _assignedTarget, _LOSTarget, _originalWatchDir, _point2, _selectedStance, _rotation, _isWater, _unitInwater, _timer, _lastTime] call TSF_fnc_moveUnit;
-							_FullMove = _result select 0;
-							_rotation = _result select 1;
-							_lastTime = _result select 2;
+						if (_engage && !_firstDot && _timer < 4) then {
+							_done = [_unit, _assignedTarget, _LOSTarget, _originalWatchDir, _point2, _selectedStance, _isWater, _unitInwater] call TSF_fnc_moveUnit;
 							_true = if (TSF_createMoveEH) then {true} else {false};
 							_unit setVariable ["TSF_unitChangingMove", _true];
-							_unit setVariable ["TSF_assignedMove", _FullMove];
 							_unit disableAI "MOVE";
 						} else {
-							if (_timer > 3*_rotation*_multi || (_rotation > 1 && _timer - _lastTime > 1)) then {
-								_rotation = _rotation + 1; 
+							if (_timer > 1.5*_rotation*_multi || (_rotation > 1 && _timer - _lastTime > 0.5)) then {
+								_unit setVariable ["TSF_unitMove_rotation", (_unit getVariable "TSF_unitMove_rotation")+1]; 
 								_ok1 = [_unit, primaryWeapon _unit] call TSF_fnc_checkWeapon;
 								if (_ok1) then {_unit selectWeapon (primaryWeapon _unit)} else {_unit selectWeapon (handgunWeapon _unit)};
 								_watchDir = _point2 vectorDiff _unitPos; 
 								if !(_unit getVariable ["TSF_unitIsTurning", false]) then {[_unit, _watchDir, _selectedStance] spawn TSF_fnc_rotateUnit};
 								_unitConfused = true;
-								_lastTime = _timer;
+								_unit setVariable ["TSF_unitMove_lastTime", _timer];
 							}  else {_watchDir = _originalWatchDir};
 							_unit setVariable ["TSF_unitWatchDir", _watchDir];
 							_dir = [_unitPos, _point2, _watchDir, _unitInwater] call TSF_fnc_getWatchMoveDir;
@@ -438,7 +442,6 @@ waitUntil {
 							_unit doWatch _watchPos;
 							_unit setVariable ["TSF_weaponType" , ""];
 						};
-						_unit setVariable ["TSF_unitMove_rotation", _rotation];
 						_unit setVariable ["TSF_unitMove_lastTime", _lastTime];
 					};
 					_unit playMoveNow (_unit getVariable ["TSF_assignedMove", ""]);
@@ -484,6 +487,7 @@ waitUntil {
 				_unit switchMove _StopMove;
 				_unit setVariable ["TSF_unitIsClimbing", true];
 				uiSleep 0.05;
+				
 				[_unit,_moveDir, _selectedStance] spawn TSF_fnc_rotateUnit;
 				waitUntil {!alive _unit || !(_unit getVariable ["TSF_unitIsTurning", false])};
 				switch (count (_path select 0)) do {
@@ -557,6 +561,7 @@ _unit enableAI "AUTOCOMBAT";
 
 {[_x, "onEachFrame"] call BIS_fnc_removeStackedEventHandler} forEach (_unit getVariable ["TSF_assigned_EHs", []]);
 if (_unit getVariable ["TSF_rotation_EH", ""] != "") then {[(_unit getVariable "TSF_rotation_EH"), "onEachFrame"] call BIS_fnc_removeStackedEventHandler};
+_unit setVariable ["TSF_rotation_EH", ""];
 _unit setVariable ["TSF_assigned_EHs", []];
 _unit setVariable ["TSF_unitCustomWatchDir", -1];
 _unit setVariable ["TSF_unitChangingMove", false];

@@ -103,6 +103,7 @@ _getInFnc =
 		
 		_targetPos = _allPos select 0;
 		_moveDir = _targetPos vectorDiff (getPosATLVisual _unit);
+		
 		[_unit,_moveDir, (stance _unit)] spawn TSF_fnc_rotateUnit;
 		while {alive _unit && (_unit getVariable ["TSF_unitIsTurning", false])} do {uiSleep 0.02};
 		_unit playMove _FullMove;
